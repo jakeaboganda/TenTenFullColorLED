@@ -1,9 +1,20 @@
 /**
  * Created by Jake Aboganda on 2017/05/29.
  * Copyright (c) 2017 TenTen Technologies Limited. All rights reserved.
+ * Updated: Joem  05/30/17
  */
 
 #include "led0.h"
+// ----- Utilities -----
+// NOTE: If the environment allows it, move to separate file
+
+// Calculate percentage without using floating point operations
+// Reference: 
+// https://stackoverflow.com/questions/20788793
+int getPercentage(int value, int total)
+{
+    return (100 * value + total / 2) / total;
+}
 
 #if (CONFIG_HARDWARE == CONFIG_HARDWARE_TI_TM4C1294)
 #include "dev/clock.h"
@@ -55,6 +66,8 @@
 
 #else
 
+#define initializeTimer()
+
 #define startTimer()
 
 #define stopTimer()
@@ -79,9 +92,67 @@ static volatile union {
     };
 } *led0Pins = (void *)LED0_PINS;
 
-// service interrupt
-void __attribute__ ((interrupt)) serviceTimerInterrupt(void)
+typedef struct
 {
+    uint8_t blue;
+    uint8_t green;
+    uint8_t red;
+} RgbDutyCycle;
+
+RgbDutyCycle rgbDutyCycle;
+static uint8_t timerVal = 1;
+
+// Software Color Modulation
+// reference: www.st.com/resource/en/application_note/cd00157323.pdf
+
+// service interrupt
+#if (CONFIG_HARDWARE == CONFIG_HARDWARE_TI_TM4C1294)
+void __attribute__ ((interrupt)) serviceTimerInterrupt(void)
+#else
+void serviceTimerInterrupt(void)
+#endif
+{
+    if (timerVal == 1)
+    {
+        if (rgbDutyCycle.red)
+        {
+            led0Pins->red = LED_ON;
+        }
+        if (rgbDutyCycle.green)
+        {
+            led0Pins->green = LED_ON;
+        }
+        if (rgbDutyCycle.blue)
+        {
+            led0Pins->blue = LED_ON;
+        }
+    }
+    else
+    {
+        int progress = getPercentage(timerVal, TICKS_PER_CYCLE);
+        if (led0Pins->red && (progress > rgbDutyCycle.red))
+        {
+            led0Pins->red = LED_OFF;
+        }
+        if (led0Pins->green && (progress > rgbDutyCycle.green))
+        {
+            led0Pins->green = LED_OFF;
+        }
+        if (led0Pins->blue && (progress > rgbDutyCycle.blue))
+        {
+            led0Pins->blue = LED_OFF;
+        }
+    }
+
+    if (timerVal <= TICKS_PER_CYCLE)
+    {
+        timerVal++;
+    }
+    else
+    {
+        timerVal = 1;
+    }
+
     /*clear interrupt*/
     clearTimerInterrupt();
 }
@@ -98,9 +169,11 @@ void led0_set(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness)
 {
     stopTimer();
 
-    led0Pins->red = (red == MAX_COLOR);
-    led0Pins->green = (green == MAX_COLOR);
-    led0Pins->blue = (blue == MAX_COLOR);
+    timerVal = 0;
+    rgbDutyCycle.red = getPercentage(red, MAX_COLOR);
+    rgbDutyCycle.green = getPercentage(green, MAX_COLOR);
+    rgbDutyCycle.blue = getPercentage(blue, MAX_COLOR);
 
     startTimer();
 }
+

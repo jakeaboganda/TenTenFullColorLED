@@ -1,6 +1,7 @@
 /**
  * Created by Billy M. Millare on 2015/11/14.
  * Copyright (c) 2015 TenTen Technologies Limited. All rights reserved.
+ * Updated: Joem  05/30/17
  */
 
 #ifndef LED0_H_
@@ -31,5 +32,21 @@ void led0_set(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness);
 
 #define LED0_ORANGE              255, 199,   0, 255
 #define LED0_SALMON              250, 128, 114, 255
+
+#define LED_ON                   1
+#define LED_OFF                  0
+
+#define MAX_STACK                100
+
+// Timer triggers every 100 ns, or 10,000,000 times per second
+// reference:
+// COMMUNICATION_TIMER_DURATION_UNIT (CLOCK_UNIT_MICROSECOND / 10)
+#define TICKS_PER_SEC            10000000
+
+// Use 50 htz for the frequency
+// reference:
+// http://www.waitingforfriday.com/?p=404
+#define PWM_HTZ 50
+#define TICKS_PER_CYCLE          (TICKS_PER_SEC / PWM_HTZ)
 
 #endif /* LED0_H_ */
