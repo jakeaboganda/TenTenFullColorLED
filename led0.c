@@ -177,3 +177,45 @@ void led0_set(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness)
     startTimer();
 }
 
+// ----- Stack Functionality ----- //
+typedef struct
+{
+    uint8_t blue;
+    uint8_t green;
+    uint8_t red;
+    uint8_t brightness;
+} RgbSettings;
+
+RgbSettings rgbSettingsStack[MAX_STACK];
+static uint8_t rgbSettingsTop = 0;
+
+bool led0_push(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness)
+{
+    if (rgbSettingsTop > (MAX_STACK-1))
+    {
+        return false;
+    }
+    led0_set(red, green, blue, brightness);
+    rgbSettingsStack[rgbSettingsTop].red = red;
+    rgbSettingsStack[rgbSettingsTop].green = green;
+    rgbSettingsStack[rgbSettingsTop].blue = blue;
+    rgbSettingsStack[rgbSettingsTop].brightness = brightness;
+    rgbSettingsTop++;
+
+    return true;
+}
+
+bool led0_pop()
+{
+    if (rgbSettingsTop == 0)
+    {
+        return false;
+    }
+    rgbSettingsTop--;
+    led0_set(rgbSettingsStack[rgbSettingsTop].red,
+             rgbSettingsStack[rgbSettingsTop].green,
+             rgbSettingsStack[rgbSettingsTop].blue,
+             rgbSettingsStack[rgbSettingsTop].brightness);
+
+    return true;
+}

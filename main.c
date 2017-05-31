@@ -6,7 +6,10 @@
 
 int main(int argc, char *argv[])
 {
-    // test call
+    // test calls
+	led0_initialize();
     led0_set(LED0_ORANGE);
+	led0_push(LED0_ORANGE);
+	led0_pop();
     return 0;
 }

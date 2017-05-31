@@ -20,6 +20,16 @@ bool led0_initialize(void);
  */
 void led0_set(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness);
 
+/**
+ * Push a color onto the stack
+ */
+bool led0_push(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness);
+
+/**
+ * Pop a color from the stack
+ */
+bool led0_pop();
+
 #define LED0_WHITE               255, 255, 255, 255
 #define LED0_YELLOW              255, 255,   0, 255
 #define LED0_PINK                255,   0, 255, 255
