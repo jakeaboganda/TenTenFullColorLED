@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -DCONFIG_HARDWARE=1
+CFLAGS = -Wall -DCONFIG_HARDWARE=1 -DDEBUG
 DEPS = led0.h
 OBJ = led0.o main.o
 
