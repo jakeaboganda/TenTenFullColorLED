@@ -13,7 +13,7 @@
 // Calculate percentage without using floating point operations
 // Reference: 
 // https://stackoverflow.com/questions/20788793
-int getPercentage(int value, int total)
+uint32_t getPercentage(uint32_t value, uint32_t total)
 {
     return (100 * value + total / 2) / total;
 }
@@ -47,9 +47,9 @@ float floatMax(float a, float b)
 // http://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
 typedef struct
 {
-    int blue;
-    int green;
-    int red;
+    uint8_t blue;
+    uint8_t green;
+    uint8_t red;
 } Rgb;
 
 // NOTE: The Hue value needs to be multiplied by 60 to convert it to degrees
@@ -279,7 +279,7 @@ typedef struct
 } RgbDutyCycle;
 
 RgbDutyCycle rgbDutyCycle;
-static uint8_t timerVal = 1;
+static uint32_t timerVal = 1;
 
 // Software Color Modulation
 // Reference: www.st.com/resource/en/application_note/cd00157323.pdf
@@ -309,7 +309,7 @@ void serviceTimerInterrupt(void)
     }
     else
     {
-        int progress = getPercentage(timerVal, TICKS_PER_CYCLE);
+        uint8_t progress = getPercentage(timerVal, TICKS_PER_CYCLE);
         if (led0Pins->red && (progress > rgbDutyCycle.red))
         {
             led0Pins->red = LED_OFF;
